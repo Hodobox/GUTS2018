@@ -17,11 +17,14 @@ public class DataParser {
 	
 	private Data restrictions;
 	
+	// initializes the parser - requires list of restrictions (an instance of Data)
 	public DataParser(Data restrictions)
 	{
 		this.restrictions = restrictions;
 	}
 	
+	// reads all files in data/, line by line, and passes the ones that match the restrictions
+	// to the analyzer
 	public void parse(Analyzer analyzer)
 	{
 		File dir = new File("../data");

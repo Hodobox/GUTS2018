@@ -14,6 +14,7 @@ public class Coordinator {
 	
 	private HashMap<String,Double[]> knownCodes;
 	
+	/*instantiates coordinator - reads zip : coordinate pairs into hashmap*/
 	public Coordinator()
 	{
 		knownCodes = new HashMap<String,Double[]>();
@@ -50,7 +51,7 @@ public class Coordinator {
 			
 		
 	}
-	
+	/*given zip code string, returns Double[2] with the resulting coordinates*/
 	public Double[] getCoordinates(String zipCode)
 	{
 		if(knownCodes.containsKey(zipCode))
