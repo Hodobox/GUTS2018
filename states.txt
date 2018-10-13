@@ -12,7 +12,7 @@ ID	State Name	ST	Zip Min	Zip Max
 74	Dist of Columbia	DC	20042	20599
 63	Dist of Columbia	DC	20799	20799
 12	Delaware	DE	19701	19980
-14	Florida	FL	32004	34997
+14	Florida	FL	32002	34997
 15	Georgia	GA	30001	31999
 65	Georga (Atlanta)	GA	39901	39901
 16	Hawaii	HI	96701	96898
