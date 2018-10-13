@@ -6,4 +6,5 @@
  *
  */
 module bigdata {
+	requires java.desktop;
 }

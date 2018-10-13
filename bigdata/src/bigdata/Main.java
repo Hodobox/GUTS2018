@@ -1,8 +1,12 @@
 package bigdata;
 
+import bigdata.WorldMap.Coordinator;
+
 public class Main {
 	public static void main(String[] args)
 	{
+		Coordinator coordinator = new Coordinator();
+
 		Data userData = new Data(); // TODO: this data should come from the user
 		Analyzer analyzer = new Analyzer();
 		DataParser parser = new DataParser(userData);

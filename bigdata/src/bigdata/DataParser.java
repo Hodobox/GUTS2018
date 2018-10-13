@@ -107,7 +107,7 @@ public class DataParser {
 					
 					if (result.size() == 1024)
 					{
-						analyzer.analyze(result);
+						analyzer.processData(result);
 						result.clear();
 					}
 					
@@ -123,6 +123,6 @@ public class DataParser {
 		}
 		
 		if(!result.isEmpty())
-			analyzer.analyze(result);
+			analyzer.processData(result);
 	}
 }
