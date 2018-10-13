@@ -1,5 +1,6 @@
-package bigdata;
+package bigdata.DataLogic;
 
+import bigdata.Record;
 import bigdata.WorldMap.MapAggregation;
 import bigdata.WorldMap.WorldMapData;
 
@@ -10,13 +11,28 @@ import java.util.Arrays;
 public class Analyzer {
 
     private static final int DEFAULT_GRID_SIZE = 16;
-    private static final String[] FIELDS_OF_INTEREST = {"age", "gender", "drg", "price"};
 
     private MapAggregation aggregationFormat;
     private ArrayList<String> mapData = new ArrayList<String>();
 
+    enum DataTypes {
+        Date,
+        Location,
+        Discrete,
+        Continuos
+    }
+
+    class ParamTime {
+    }
+    class ParamLocation {
+    }
+    class ParamContinuos {
+    }
+
     public Analyzer(MapAggregation aggregationFormat) {
         this.aggregationFormat = aggregationFormat;
+
+
     }
 
     public Analyzer(){
@@ -52,10 +68,10 @@ public class Analyzer {
         String dataString;
         for (int i = 0; i < stateCount; i++ ) {
             dataString = states[i] + ";";
-            for (String field : this.FIELDS_OF_INTEREST ) {
+            /* for (String field : this.FIELDS_OF_INTEREST ) {
 
                 dataString += field;
-            }
+            } */
             dataByState[i] = dataString;
         }
 
