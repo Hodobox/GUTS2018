@@ -1,5 +1,7 @@
 package bigdata;
 
+import java.util.Date;
+
 public class Data {
 
 	public int getAgeLimitLow() {
@@ -60,11 +62,28 @@ public class Data {
 		this.includeMales = includeMales;
 	}
 
+	public Date getDateLimitLow() {
+		return dateLimitLow;
+	}
+
+	public void setDateLimitLow(Date dateLimitLow) {
+		this.dateLimitLow = dateLimitLow;
+	}
+
+	public Date getDateLimitHigh() {
+		return dateLimitHigh;
+	}
+
+	public void setDateLimitHigh(Date dateLimitHigh) {
+		this.dateLimitHigh = dateLimitHigh;
+	}
+	
 	private int ageLimitLow, ageLimitHigh;
 	private boolean includeFemales, includeMales;
 	private int priceLimitLow, priceLimitHigh;
 	private DRG DRGInformation;
-	
+	Date dateLimitLow, dateLimitHigh;
+
 	public Data()
 	{
 		
