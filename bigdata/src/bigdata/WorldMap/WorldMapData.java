@@ -2,27 +2,34 @@ package bigdata.WorldMap;
 
 import java.awt.*;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
 public class WorldMapData {
 
-    private static HashMap<String, Point> stateZipRange;
+    private static HashMap<String,ArrayList<Point>> stateZipRange;
 
     public static String getStateByZip(String zip)
     {
         int zipValue = Integer.parseInt(zip);
+        
         for (String stateCode : stateZipRange.keySet())
-        {
-            if (stateZipRange.get(stateCode).x <= Integer.parseInt(zip) && Integer.parseInt(zip) <= stateZipRange.get(stateCode).y);
-                return stateCode;
+        {	
+        	ArrayList<Point> ranges = stateZipRange.get(stateCode);
+        	for(Point range : ranges)
+        		if ( (range.x <= zipValue) && (zipValue <= range.y))
+        		{
+        			return stateCode;
+        		}
         }
+        System.out.println(zipValue);
         throw new RuntimeException("state not found");
     }
 
     public static void processStateZipRanges() {
     	System.out.println("constructing the fking map");
-    	stateZipRange = new HashMap<String,Point>();
+    	stateZipRange = new HashMap<String,ArrayList<Point>>();
         File file = new File("../states.txt");
         BufferedReader reader = null;
         try {
@@ -38,8 +45,13 @@ public class WorldMapData {
             while ((line = reader.readLine()) != null) {
                 String[] tokens = line.split("\t");
                 int rangeLow = Integer.parseInt(tokens[tokens.length - 2]), rangeHigh = Integer.parseInt(tokens[tokens.length - 1]);
-                
-                stateZipRange.put(tokens[tokens.length-3], new Point(rangeLow, rangeHigh));
+
+                ArrayList<Point> cur;
+                if(stateZipRange.containsKey(tokens[tokens.length-3]))
+                	cur = stateZipRange.get(tokens[tokens.length-3]);
+                else cur = new ArrayList<Point>();
+                cur.add(new Point(rangeLow, rangeHigh));
+                stateZipRange.put(tokens[tokens.length-3], cur);
             }
         } catch (IOException e) {
             e.printStackTrace();

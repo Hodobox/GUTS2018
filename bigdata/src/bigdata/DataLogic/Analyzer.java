@@ -114,6 +114,7 @@ public class Analyzer {
         }
         for (Record entry : entries) {
             String state = WorldMapData.getStateByZip(entry.postCode);
+
             dataByState.put(state, dataByState.get(state) + 1);
         }
 

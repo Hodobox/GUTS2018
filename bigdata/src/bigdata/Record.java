@@ -5,18 +5,21 @@ public class Record {
 
     public Record(String line)
 	{
-        int priceStartIndex = line.indexOf('$');
-        if(priceStartIndex == -1)
-            return;
 
-        String priceStr = line.substring(priceStartIndex);
-        line = line.substring(0, priceStartIndex-1);
         String[] columns = line.split(",");
 
+        if(columns.length < 15)
+        	System.out.println(line);
+        
         final String gender = columns[3];
         final String birthDate = columns[4];
         final String admissionDate = columns[6];
-        final String postcodeStr = columns[14];
+        String postcodeStr = columns[14];
+        
+        if(postcodeStr.length() > 5)
+		{
+        	postcodeStr = postcodeStr.substring(0, 5);
+		}
         
         this.postCode = postcodeStr;
         

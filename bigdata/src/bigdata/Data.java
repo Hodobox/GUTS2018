@@ -88,13 +88,13 @@ public class Data {
 
 	public Data()
 	{
-		this.ageLimitLow = 0;
-		this.ageLimitHigh = 123;
+		this.ageLimitLow = 20;
+		this.ageLimitHigh = 25;
 		this.includeFemales = true;
-		this.includeMales = true;
+		this.includeMales = false;
 		try {
-			this.dateLimitLow = new SimpleDateFormat("MM/dd/yyyy").parse("1/1/1900");
-			this.dateLimitHigh = new SimpleDateFormat("MM/dd/yyyy").parse("1/1/2100");
+			this.dateLimitLow = new SimpleDateFormat("MM/dd/yyyy").parse("1/1/2013");
+			this.dateLimitHigh = new SimpleDateFormat("MM/dd/yyyy").parse("1/1/2018");
 		} catch (ParseException e) {
 			System.out.println("fuck you date");
 			e.printStackTrace();

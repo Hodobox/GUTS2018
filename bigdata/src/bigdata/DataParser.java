@@ -36,6 +36,8 @@ public class DataParser {
 		DRGChecker drgcheck = new DRGChecker();
 		for (File file : directoryListing)
 		{
+			System.out.println(file.getName());
+			
 			try {
 				BufferedReader reader = new BufferedReader(new FileReader(file));
 				reader.readLine(); // read header
@@ -44,13 +46,30 @@ public class DataParser {
 				
 				while( (line = reader.readLine()) != null)
 				{
-					Record record = new Record(line);
+					boolean withinEntry = false;
+					for(int i=0;i<line.length();++i)
+					{
+						if(line.charAt(i)=='"') withinEntry = !withinEntry;
+						if(line.charAt(i)==',' && withinEntry)
+							line = line.substring(0,i) + line.substring(i+1);
+					}
+					line = line.replaceAll("\"", "");
+					
 					int priceStartIndex = line.indexOf('$');
 					if(priceStartIndex == -1)
 						continue;
+					
 					String priceStr = line.substring(priceStartIndex+1);
-					line = line.substring(0, priceStartIndex-1);
+					line = line.substring(0,priceStartIndex);
 					String[] columns = line.split(",");
+					
+					if(columns.length != 21)
+					{
+						System.out.println("Faulty line: " + line);
+						continue;
+					}
+					
+					Record record = new Record(line);
 					
 					final String gender = columns[3];
 					final String birthDate = columns[4];
