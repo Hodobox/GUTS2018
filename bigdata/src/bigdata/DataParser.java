@@ -31,7 +31,6 @@ public class DataParser {
 	{
 		File dir = new File("../data");
 		File[] directoryListing = dir.listFiles();
-		System.out.println(directoryListing);
 
 		ArrayList<Record> result = new ArrayList<Record>();
 		DRGChecker drgcheck = new DRGChecker();
