@@ -1,5 +1,7 @@
 package bigdata;
 
+import bigdata.DataLogic.Analyzer;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -26,10 +28,11 @@ public class DataParser {
 	{
 		File dir = new File("../data");
 		File[] directoryListing = dir.listFiles();
+		System.out.println(directoryListing);
 
 		ArrayList<Record> result = new ArrayList<Record>();
 		DRGChecker drgcheck = new DRGChecker();
-		for(File file: directoryListing)
+		for (File file : directoryListing)
 		{
 			try {
 				BufferedReader reader = new BufferedReader(new FileReader(file));

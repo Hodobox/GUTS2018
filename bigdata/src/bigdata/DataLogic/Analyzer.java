@@ -4,81 +4,94 @@ import bigdata.Record;
 import bigdata.WorldMap.MapAggregation;
 import bigdata.WorldMap.WorldMapData;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Hashtable;
+import java.util.Set;
 
 public class Analyzer {
 
     private static final int DEFAULT_GRID_SIZE = 16;
 
     private MapAggregation aggregationFormat;
-    private ArrayList<String> mapData = new ArrayList<String>();
+    private Hashtable<String, Integer> mapData = new Hashtable<String, Integer>();
 
-    enum DataTypes {
-        Date,
-        Location,
-        Discrete,
-        Continuos
-    }
+    private Set<AnalysisMode> targetModes;
 
-    class ParamTime {
+    public void addTargetMode(AnalysisMode targetMode) {
+        this.targetModes.add(targetMode);
     }
-    class ParamLocation {
-    }
-    class ParamContinuos {
+    public void deleteTargetMode(AnalysisMode targetMode) {
+        if (this.targetModes.contains(targetMode)) {
+            this.targetModes.remove(targetMode);
+        }
     }
 
     public Analyzer(MapAggregation aggregationFormat) {
+        // this.addTargetMode(AnalysisMode.Geography);
         this.aggregationFormat = aggregationFormat;
-
-
     }
 
     public Analyzer(){
         this(MapAggregation.US_State);
     }
 
+    public Hashtable<String, Integer> getMapData() {
+        return this.mapData;
+    }
+
     /* process list of data entries pre-filtered by parser into data structure
        usable by map plotter */
     public void processData(ArrayList<Record> entries) {
-        MapAggregation format = this.aggregationFormat;
-        String[] newEntries;
+        String analysisMode = "geo";
 
-        switch(format){
-            case US_State:
-                // Get list of us states with codes
-                String[] states = WorldMapData.US_STATES;
-                newEntries = aggregateByState(entries, states);
-                break;
-            case Grid:
-                newEntries = aggregateByGrid(entries, DEFAULT_GRID_SIZE);
-                break;
-            default:
-                newEntries = new String[] {};
+        // geographical map plotting task
+        if (analysisMode == "geo") {
+            MapAggregation format = this.aggregationFormat;
+            Hashtable<String, Integer> regionValues;
+            switch(format){
+                case US_State:
+                    // Get list of us states with codes
+                    String[] states = WorldMapData.US_STATES;
+                    regionValues = aggregateByState(entries, states);
+                    break;
+                case Grid:
+                    regionValues = aggregateByGrid(entries, DEFAULT_GRID_SIZE);
+                    break;
+                default:
+                    regionValues = new Hashtable<String, Integer>();
+            }
+
+            if (this.mapData.isEmpty()) {
+                this.mapData = regionValues;
+            } else {
+                // update the values of mapData with values from the new data chunk
+                for (String region : this.mapData.keySet()) {
+                    if (this.mapData.get(region) < regionValues.get(region)) {
+                        this.mapData.put(region, regionValues.get(region));
+                    }
+                }
+            }
+
         }
-
-        this.mapData.addAll(Arrays.asList(newEntries));
     }
 
-    private String[] aggregateByState(ArrayList<Record> entries, String[] states) {
-        int stateCount = states.length;
-        String[] dataByState = new String[stateCount];
+    private Hashtable<String, Integer> aggregateByState(ArrayList<Record> entries, String[] states) {
+        Hashtable<String, Integer> dataByState = new Hashtable<String, Integer>();
 
-        String dataString;
-        for (int i = 0; i < stateCount; i++ ) {
-            dataString = states[i] + ";";
-            /* for (String field : this.FIELDS_OF_INTEREST ) {
-
-                dataString += field;
-            } */
-            dataByState[i] = dataString;
+        // calculate number of incidents of given data per state
+        for (String state : states) {
+            dataByState.put(state, 0);
+        }
+        for (Record entry : entries) {
+            String state = WorldMapData.getStateByZip(entry.postCode);
+            dataByState.put(state, dataByState.get(state) + 1);
         }
 
-        return new String[] {};
+        return dataByState;
     }
 
-    private String[] aggregateByGrid(ArrayList<Record> entries, int gridSize) {
-        return new String[] {};
+    private Hashtable<String, Integer>  aggregateByGrid(ArrayList<Record> entries, int gridSize) {
+        return new Hashtable<String, Integer>();
     }
 }
