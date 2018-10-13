@@ -2,6 +2,7 @@ package bigdata.WorldMap;
 
 import java.awt.*;
 import java.io.*;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class WorldMapData {
@@ -20,6 +21,8 @@ public class WorldMapData {
     }
 
     public static void processStateZipRanges() {
+    	System.out.println("constructing the fking map");
+    	stateZipRange = new HashMap<String,Point>();
         File file = new File("../states.txt");
         BufferedReader reader = null;
         try {
@@ -33,15 +36,10 @@ public class WorldMapData {
             String line;
 
             while ((line = reader.readLine()) != null) {
-                String[] tokens = line.split("");
+                String[] tokens = line.split("\t");
                 int rangeLow = Integer.parseInt(tokens[tokens.length - 2]), rangeHigh = Integer.parseInt(tokens[tokens.length - 1]);
-                int stateCodeIndex = 0;
-                while (tokens[stateCodeIndex].length() != 2 || Character.isLowerCase(tokens[stateCodeIndex].charAt(0)))
-                    stateCodeIndex++;
-
-                String stateCode = tokens[stateCodeIndex];
-
-                stateZipRange.put(stateCode, new Point(rangeLow, rangeHigh));
+                
+                stateZipRange.put(tokens[tokens.length-3], new Point(rangeLow, rangeHigh));
             }
         } catch (IOException e) {
             e.printStackTrace();

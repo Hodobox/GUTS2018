@@ -17,6 +17,9 @@ public class Record {
         final String birthDate = columns[4];
         final String admissionDate = columns[6];
         final String postcodeStr = columns[14];
+        
+        this.postCode = postcodeStr;
+        
         final String DRGcode = columns[17];
 		// parse the input line and extract whatever information analyzer needs
 	}

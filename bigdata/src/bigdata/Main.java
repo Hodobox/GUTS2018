@@ -10,7 +10,7 @@ public class Main {
 	public static void main(String[] args)
 	{
 		//Coordinator coordinator = new Coordinator();
-
+		
 		Data userData = new Data(); // TODO: this data should come from the user
 
 		Analyzer analyzer = new Analyzer(MapAggregation.US_State);
