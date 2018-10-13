@@ -1,8 +1,8 @@
 package bigdata;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+// import java.nio.charset.StandardCharsets;
+// import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,7 +28,7 @@ import java.net.URLConnection;
 public class bigData {
 
 	public static void main(String[] args) throws IOException {
-
+	/*
 		String s = "neoplasms";
 		File file = new File("diseases.csv"); 
 		List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8); 
@@ -41,11 +41,10 @@ public class bigData {
 		   
 		  
 		}
-		
+	*/
 	}
 	public static String getDrgDescription(String codeName) throws IOException{
-		return new String("fixme");
-		/*String completeUrl = "https://www.icd10data.com/search?s=" + codeName;
+		/* String completeUrl = "https://www.icd10data.com/search?s=" + codeName;
 		String text = Jsoup.parse(new URL(completeUrl), 10000).text();
 		//System.out.println(text);
 		
@@ -61,8 +60,9 @@ public class bigData {
 		
 		int iend = sentence.indexOf("ICD-10-CM");
 		String description = sentence.substring(0,iend);
-		
+
 		return description;*/
+		return null;
 	}
 	
 	

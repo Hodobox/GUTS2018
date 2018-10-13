@@ -15,8 +15,7 @@ public class Analyzer {
     private MapAggregation aggregationFormat;
     private Hashtable<String, Integer> mapData = new Hashtable<String, Integer>();
 
-    private Set<AnalysisMode> targetModes;
-
+    private ArrayList<AnalysisMode> targetModes;
 
     public boolean checkTargetModes(AnalysisMode[] targetModes) {
         HashSet<AnalysisMode[]> ModeComplexes = new HashSet<AnalysisMode[]>();
@@ -42,7 +41,6 @@ public class Analyzer {
     }
 
     public void addTargetMode(AnalysisMode targetMode) {
-
         this.targetModes.add(targetMode);
     }
     public void deleteTargetMode(AnalysisMode targetMode) {
