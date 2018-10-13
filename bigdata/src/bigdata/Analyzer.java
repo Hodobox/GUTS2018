@@ -39,7 +39,7 @@ public class Analyzer {
                 newEntries = aggregateByGrid(entries, DEFAULT_GRID_SIZE);
                 break;
             default:
-                newEntries = new String[];
+                newEntries = new String[] {};
         }
 
         this.mapData.addAll(Arrays.asList(newEntries));
