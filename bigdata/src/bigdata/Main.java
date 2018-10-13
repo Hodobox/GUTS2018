@@ -13,6 +13,8 @@ public class Main {
 		
 		Data userData = new Data(); // TODO: this data should come from the user
 
+
+
 		Analyzer analyzer = new Analyzer(MapAggregation.US_State);
 		DataParser parser = new DataParser(userData);
 		parser.parse(analyzer);

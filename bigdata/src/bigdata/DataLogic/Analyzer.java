@@ -4,10 +4,9 @@ import bigdata.Record;
 import bigdata.WorldMap.MapAggregation;
 import bigdata.WorldMap.WorldMapData;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.Set;
+import java.util.*;
+
+import static bigdata.DataLogic.AnalysisMode.*;
 
 public class Analyzer {
 
@@ -18,7 +17,32 @@ public class Analyzer {
 
     private Set<AnalysisMode> targetModes;
 
+
+    public boolean checkTargetModes(AnalysisMode[] targetModes) {
+        HashSet<AnalysisMode[]> ModeComplexes = new HashSet<AnalysisMode[]>();
+
+        AnalysisMode[] TimeLocation = {Geography, Time}; // nothing to show but valid
+        AnalysisMode[] NumericTime = {Numeric, Time}; // graph of numeric value over time
+        AnalysisMode[] NumericLocation = {Numeric, Geography}; // color scale of value on the map, refine with aggregation mode
+        AnalysisMode[] NumericTimeLocation = {Numeric, Geography, Time}; // color scale + time slider
+        AnalysisMode[] QualitativeNumeric = {Qualitative, Numeric}; // bar chart, pie chart, histogram
+        AnalysisMode[] NumericNumeric = {Numeric, Numeric}; // graph x against y
+
+        ModeComplexes.add(TimeLocation);
+        ModeComplexes.add(NumericTime);
+        ModeComplexes.add(NumericLocation);
+        ModeComplexes.add(NumericTimeLocation);
+        ModeComplexes.add(QualitativeNumeric);
+        ModeComplexes.add(NumericNumeric);
+
+        if (ModeComplexes.contains(targetModes)) {
+            return true;
+        }
+        return false;
+    }
+
     public void addTargetMode(AnalysisMode targetMode) {
+
         this.targetModes.add(targetMode);
     }
     public void deleteTargetMode(AnalysisMode targetMode) {
