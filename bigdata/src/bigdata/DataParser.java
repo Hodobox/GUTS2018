@@ -5,7 +5,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class DataParser {
 	
@@ -16,11 +22,11 @@ public class DataParser {
 		this.restrictions = restrictions;
 	}
 	
-	public ArrayList<Record> parse()
+	public void parse(Analyzer analyzer)
 	{
 		File dir = new File("../data");
 		File[] directoryListing = dir.listFiles();
-		
+
 		ArrayList<Record> result = new ArrayList<Record>();
 		DRGChecker drgcheck = new DRGChecker();
 		for(File file: directoryListing)
@@ -33,6 +39,7 @@ public class DataParser {
 				
 				while( (line = reader.readLine()) != null)
 				{
+					Record record = new Record(line);
 					int priceStartIndex = line.indexOf('$');
 					if(priceStartIndex == -1)
 						continue;
@@ -48,9 +55,40 @@ public class DataParser {
 					
 					// check gender
 					
-					// check age
+					if(!restrictions.isIncludeFemales() && gender.equals("F"))
+						continue;
 					
-					// check time
+					if(!restrictions.isIncludeMales() && gender.equals("M"))
+						continue;
+					
+					// check age
+					Date dateOfBirth;
+					Date dateOfAdmission;
+					try {
+						dateOfBirth = new SimpleDateFormat("MM/dd/yyyy").parse(birthDate);
+					} catch (ParseException e) {
+						System.out.println("Error: invalid date of birth " + birthDate);
+						e.printStackTrace();
+						continue;
+					}  
+					
+					try {
+						dateOfAdmission = new SimpleDateFormat("MM/dd/yyyy").parse(admissionDate);
+					} catch (ParseException e) {
+						System.out.println("Error: invalid date of admission " + admissionDate);
+						e.printStackTrace();
+						continue;
+					}  
+					
+					int age = Period.between(LocalDate.ofInstant(dateOfBirth.toInstant(), ZoneId.systemDefault()), LocalDate.ofInstant(dateOfAdmission.toInstant(), ZoneId.systemDefault())).getYears();
+					
+					if(age < restrictions.getAgeLimitLow() || age > restrictions.getAgeLimitHigh())
+						continue;
+					
+					// check time of incident
+					
+					if(restrictions.getDateLimitLow().after(dateOfAdmission) || restrictions.getDateLimitHigh().before(dateOfAdmission)) 
+						continue;
 					
 					// check DRG
 					
@@ -58,9 +96,20 @@ public class DataParser {
 						continue;
 					
 					// check price
+					priceStr.replaceAll(",", "");
+					double price = Double.parseDouble(priceStr);
+					
+					if(price < restrictions.getPriceLimitLow() || price > restrictions.getPriceLimitHigh())
+						continue;
 					
 					// all criteria passed, add it to analyzer data
-					// TODO
+					result.add(record);
+					
+					if (result.size() == 1024)
+					{
+						analyzer.analyze(result);
+						result.clear();
+					}
 					
 				}
 				
@@ -73,6 +122,7 @@ public class DataParser {
 			}
 		}
 		
-		return result;
+		if(!result.isEmpty())
+			analyzer.analyze(result);
 	}
 }
