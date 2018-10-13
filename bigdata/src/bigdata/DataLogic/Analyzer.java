@@ -30,10 +30,11 @@ public class Analyzer {
     public Analyzer(MapAggregation aggregationFormat) {
         // this.addTargetMode(AnalysisMode.Geography);
         this.aggregationFormat = aggregationFormat;
+        WorldMapData.processStateZipRanges();
     }
 
     public Analyzer(){
-        this(MapAggregation.US_State);
+    	this(MapAggregation.US_State);
     }
 
     public Hashtable<String, Integer> getMapData() {
@@ -44,6 +45,8 @@ public class Analyzer {
        usable by map plotter */
     public void processData(ArrayList<Record> entries) {
         String analysisMode = "geo";
+        
+        System.out.println("I am processing " + entries.size() + " entries");
 
         // geographical map plotting task
         if (analysisMode == "geo") {
@@ -67,9 +70,10 @@ public class Analyzer {
             } else {
                 // update the values of mapData with values from the new data chunk
                 for (String region : this.mapData.keySet()) {
-                    if (this.mapData.get(region) < regionValues.get(region)) {
-                        this.mapData.put(region, regionValues.get(region));
-                    }
+                    //if (this.mapData.get(region) < regionValues.get(region)) {
+                    int currentCount = this.mapData.get(region);
+                	this.mapData.put(region, currentCount + regionValues.get(region));
+                    //}
                 }
             }
 
@@ -77,6 +81,7 @@ public class Analyzer {
     }
 
     private Hashtable<String, Integer> aggregateByState(ArrayList<Record> entries, String[] states) {
+    	
         Hashtable<String, Integer> dataByState = new Hashtable<String, Integer>();
 
         // calculate number of incidents of given data per state

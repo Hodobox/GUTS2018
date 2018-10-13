@@ -1,3 +1,5 @@
+package bigdata;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -12,7 +14,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.text.html.HTML;
 
-import org.jsoup.Jsoup;
+//import org.jsoup.Jsoup;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -42,7 +44,8 @@ public class bigData {
 		
 	}
 	public static String getDrgDescription(String codeName) throws IOException{
-		String completeUrl = "https://www.icd10data.com/search?s=" + codeName;
+		return new String("fixme");
+		/*String completeUrl = "https://www.icd10data.com/search?s=" + codeName;
 		String text = Jsoup.parse(new URL(completeUrl), 10000).text();
 		//System.out.println(text);
 		
@@ -59,7 +62,7 @@ public class bigData {
 		int iend = sentence.indexOf("ICD-10-CM");
 		String description = sentence.substring(0,iend);
 		
-		return description;
+		return description;*/
 	}
 	
 	

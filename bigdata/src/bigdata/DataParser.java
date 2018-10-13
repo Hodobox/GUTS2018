@@ -48,7 +48,7 @@ public class DataParser {
 					int priceStartIndex = line.indexOf('$');
 					if(priceStartIndex == -1)
 						continue;
-					String priceStr = line.substring(priceStartIndex);
+					String priceStr = line.substring(priceStartIndex+1);
 					line = line.substring(0, priceStartIndex-1);
 					String[] columns = line.split(",");
 					
@@ -90,6 +90,7 @@ public class DataParser {
 					if(age < restrictions.getAgeLimitLow() || age > restrictions.getAgeLimitHigh())
 						continue;
 					
+					
 					// check time of incident
 					
 					if(restrictions.getDateLimitLow().after(dateOfAdmission) || restrictions.getDateLimitHigh().before(dateOfAdmission)) 
@@ -101,7 +102,8 @@ public class DataParser {
 						continue;
 					
 					// check price
-					priceStr.replaceAll(",", "");
+					priceStr = priceStr.replaceAll(",", "");
+					priceStr = priceStr.substring(0,priceStr.length()-1);
 					double price = Double.parseDouble(priceStr);
 					
 					if(price < restrictions.getPriceLimitLow() || price > restrictions.getPriceLimitHigh())

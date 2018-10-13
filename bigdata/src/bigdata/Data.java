@@ -1,5 +1,7 @@
 package bigdata;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Data {
@@ -86,6 +88,19 @@ public class Data {
 
 	public Data()
 	{
+		this.ageLimitLow = 0;
+		this.ageLimitHigh = 123;
+		this.includeFemales = true;
+		this.includeMales = true;
+		try {
+			this.dateLimitLow = new SimpleDateFormat("MM/dd/yyyy").parse("1/1/1900");
+			this.dateLimitHigh = new SimpleDateFormat("MM/dd/yyyy").parse("1/1/2100");
+		} catch (ParseException e) {
+			System.out.println("fuck you date");
+			e.printStackTrace();
+		}
+		this.priceLimitLow = 0;
+		this.priceLimitHigh = 123456;
 		
 	}
 }
