@@ -15,12 +15,12 @@ thedata = geoplotlib.utils.read_csv('../data/ourplot.csv')
 print("success")
 
 # basic dot map
-geoplotlib.dot(thedata)
+#geoplotlib.dot(thedata)
 
 
 # heat map
 
-#geoplotlib.kde(thedata, bw=[5,5])
+geoplotlib.kde(thedata, bw=[5,5])
 
 
 # lowering clip_above changes the max value in the color scale

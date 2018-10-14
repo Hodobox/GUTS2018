@@ -23,6 +23,7 @@ public class Analyzer {
     private Grid grid;
     private Hashtable<String, Integer> mapDataState = new Hashtable<String, Integer>();
     private Hashtable<String, Integer> mapDataGrid = new Hashtable<String, Integer>();
+    private Hashtable<String, Integer> mapDataZIP = new Hashtable<String,Integer>();
 
     class Grid {
         private int gridSize;
@@ -136,26 +137,23 @@ public class Analyzer {
                 String[] states = WorldMapData.US_STATES; // Get list of us states with codes
                 regionValues = aggregateByState(entries, states);
                 break;
+            case ZIP:
+            	regionType = "zip";
+            	regionValues = new Hashtable<String,Integer> ();
             default:
                 regionValues = new Hashtable<String, Integer>();
         }
 
-        // variable for caching
-        String variableName = "trauma"; // todo: merge filter parameters and pass to analyzer as a variable name
-
-        // update instance values and cache them into txt file
-        if (this.mapDataGrid.isEmpty()) {
-            this.mapDataGrid = regionValues;
-        } else {
-            // update the values of mapDataState with values from the new data chunk
-            for (String region : regionValues.keySet()) {
-                int newCount = this.mapDataGrid.getOrDefault(region, 0) + regionValues.getOrDefault(region, 0);
-                this.mapDataGrid.put(region, newCount);
-            }
+        for(Record rec : entries)
+        {
+        	String recZip = rec.postCode;
+        	int cur = 0;
+        	if(mapDataZIP.contains(rec.postCode)) cur = mapDataZIP.get(rec.postCode);
+        	this.mapDataZIP.put(rec.postCode,cur+1);
         }
-
-        System.out.println("Caching regional variable...");
-        cacher.cacheRegionalVariable(regionType, variableName, mapDataGrid);
+        
+       // System.out.println("Caching regional variable...");
+      //  cacher.cacheRegionalVariable(regionType, variableName, mapDataGrid);
     }
 
     private Hashtable<String, Integer> aggregateByGrid(ArrayList<Record> entries,
@@ -206,6 +204,27 @@ public class Analyzer {
         }
 
         return dataByState;
+    }
+  
+    
+    public String getMapDataZIP()
+    {
+    	StringBuilder sb = new StringBuilder();
+    	Coordinator coor = new Coordinator();
+    	for(String s: this.mapDataZIP.keySet())
+    	{
+    		double[] c = coor.getCoordinates(s);
+    		
+    		for(int i=0;i<this.mapDataZIP.get(s);i++)
+    		{
+    			sb.append(c[0]);
+    			sb.append(",");
+    			sb.append(c[1]);
+    			sb.append("\n");
+    		}
+    	}
+    	
+    	return sb.toString();
     }
 
     // Target modes which are not gonna be implemented because we don't have gui :`(

@@ -22,19 +22,19 @@ public class Main {
 	{
 		Data userData = new Data();
 
-        Analyzer analyzer = new Analyzer(MapAggregation.Grid);
+        Analyzer analyzer = new Analyzer(MapAggregation.ZIP);
 		DataParser parser = new DataParser(userData);
 		parser.parse(analyzer);
 
         try {
             System.out.println("Getting coordinates for the map...");
-            String mapDataByGrid = analyzer.getMapDataGrid("grid32", "trauma");
-            System.out.println(mapDataByGrid);
+            String mapDataZIP = analyzer.getMapDataZIP();
+            System.out.println(mapDataZIP);
             
             PrintWriter pw = new PrintWriter(new File("../data/ourplot.csv"));
             StringBuilder sb = new StringBuilder();
             
-            String[] values = mapDataByGrid.split("\n");
+            String[] values = mapDataZIP.split("\n");
             pw.write("name,lat,lon\n");
             
             System.out.println(values.length);
@@ -45,7 +45,7 @@ public class Main {
             	pw.write("dummy,");
             	sb.append(Double.parseDouble(latlon[0]));
             	sb.append(",");
-            	sb.append(-Double.parseDouble(latlon[1]));
+            	sb.append(Double.parseDouble(latlon[1]));
             	sb.append("\n");
             	pw.write(sb.toString());
             	sb.setLength(0);

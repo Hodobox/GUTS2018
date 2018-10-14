@@ -166,6 +166,14 @@ public class Data {
 			this.priceLimitHigh = tmp;
 		}
 		
+		System.out.println("Enter lower DRG code bound, then upper DRG code bound: ");
+		
+		this.DRGInformation = new DRG();
+				
+		Scanner sc = new Scanner(System.in);
+		this.DRGInformation.lowerLimit = sc.next();
+		this.DRGInformation.upperLimit = sc.next();
+		sc.close();
 		
 	}
 }
