@@ -60,8 +60,8 @@ public class DataParser {
             if (cachedFiles != null) {
                 System.out.println(cachedFiles.size());
                 if (cachedFiles.contains(currentFile)) {
-                    System.out.println("The current file has been cached, skipping...");
-                    continue;
+                    //System.out.println("The current file has been cached, skipping...");
+                    //continue;
                 }
             }
 

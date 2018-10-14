@@ -1,6 +1,6 @@
 package bigdata;
 
-import org.jsoup.Jsoup;
+//import org.jsoup.Jsoup;
 
 import java.io.*;
 // import java.nio.charset.StandardCharsets;
@@ -46,8 +46,9 @@ public class bigData {
 	*/
 	}
 	public static String getDrgDescription(String codeName) throws IOException{
+
 		String completeUrl = "https://www.icd10data.com/search?s=" + codeName;
-		String text = Jsoup.parse(new URL(completeUrl), 10000).text();
+		String text = "";//Jsoup.parse(new URL(completeUrl), 10000).text();
 		//System.out.println(text);
 		
 		String wordToFind = "ICD-9-CM] ";

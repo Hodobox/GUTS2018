@@ -99,6 +99,8 @@ public class Analyzer {
 
         String plotData = "";
         int scale = maxValue / 100;
+        if(scale == 0)
+        	scale = 1;
 
         // get list of coordinates with higher magnitude points represented by multiple of repeated coordinates
         for (int i = 0; i < centersCoords.size(); i++) {
@@ -159,7 +161,9 @@ public class Analyzer {
     private Hashtable<String, Integer> aggregateByGrid(ArrayList<Record> entries,
                                                        int gridSize, double[] topLeftEdge, double[] botRightEdge) {
         Hashtable<String, Integer> dataByGrid = new Hashtable<String, Integer>();
-        this.grid = new Grid(gridSize, topLeftEdge, botRightEdge);
+        
+        if (this.grid == null)
+        	this.grid = new Grid(gridSize, topLeftEdge, botRightEdge);
 
         for (Record entry : entries) {
             try {

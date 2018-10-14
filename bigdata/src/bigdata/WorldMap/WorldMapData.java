@@ -38,9 +38,8 @@ public class WorldMapData {
     }
 
     public static void processStateZipRanges() {
-    	System.out.println("constructing the fking map");
     	stateZipRange = new HashMap<String,ArrayList<Point>>();
-        File file = new File("states.txt");
+        File file = new File("../states.txt");
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(file));

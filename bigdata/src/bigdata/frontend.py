@@ -6,8 +6,13 @@
 
 import geoplotlib
 
-thedata = geoplotlib.utils.read_csv('../../../data/plot.csv')
+#import os
+#for filename in os.listdir():
+#	print(filename)
 
+print("trying to read plot.csv...")
+thedata = geoplotlib.utils.read_csv('../data/ourplot.csv')
+print("success")
 
 # basic dot map
 geoplotlib.dot(thedata)
@@ -26,5 +31,6 @@ geoplotlib.dot(thedata)
 #geoplotlib.kde(thedata, bw=2, cmap='PuBuGn', cut_below=1e-4)
 
 
-
+print("showing map")
 geoplotlib.show()
+print("success");
