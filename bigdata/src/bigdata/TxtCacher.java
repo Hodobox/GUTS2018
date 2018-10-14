@@ -6,7 +6,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 public class TxtCacher {
-    private static final String CACHE_SOURCE_FILES_NAME = "cache_sourceFiles.txt";
+    public static final String CACHE_SOURCE_FILES_NAME = "cache_sourceFiles.txt";
     public String workpath = "";
 
     public TxtCacher(String workspace) {
@@ -14,29 +14,6 @@ public class TxtCacher {
         if (createFolder(workpath)) {
             this.workpath = workpath + "/";
         }
-    }
-
-
-    private Hashtable<String, Integer> getFileVarPointers(String filePath) {
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(filePath));
-
-            String line;
-            Hashtable<String, Integer> pointers = new Hashtable<>();
-
-            int lineIndex = 1;
-            while ((line = reader.readLine()) != null) {
-                if (line.split(":")[0].equals("var")) {
-                    pointers.put(line.split(":")[1], lineIndex);
-                }
-                ++lineIndex;
-            }
-
-            return pointers;
-        } catch (IOException e) {
-            System.out.println("Unable to get pointers from file '" + filePath + "'. Exception occured:" + e);
-        }
-        return null;
     }
 
     void cacheSourceFile(String cachedFile) {
@@ -47,75 +24,66 @@ public class TxtCacher {
      * read through file until found record for the queried variable, buffering all text.
      * merge old and new values for queried variable and buffer them. read through remaining file
      * and buffer text. finally overwrite original file with the new text (with updated variable values)
-     * @param filePath
-     * @param variable
-     * @param variablePointer
-     * @param additionValues
-     * @throws IOException
      */
-    public void updateVariable(String filePath, String variable, Integer variablePointer,
-                               Hashtable<String, Integer> additionValues) throws IOException {
+    public boolean updateVariableInCache(String filePath, String variable,
+                                         Hashtable<String, Integer> additionValues) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(filePath));
-
         String line;
-        String varName = null;
-
         String text = "";
-        int i = 0;
-        while (i < variablePointer) {
-            text += reader.readLine();
-            i++;
-        }
 
-        // check pointer was correct
-        line = reader.readLine();
-        if (!line.split(":")[0].equals("var") && !line.split(":")[1].equals(variable)) {
-            throw new RuntimeException("Pointer failure while trying to modify variable storage at path '"
-                    + filePath + "'. Exception: ");
+        // iterate until queried variable found
+        while ((line = reader.readLine()) != null) {
+            if (line.length() >= 3 && line.substring(0,2).equals("var") && line.split(":")[1].equals(variable)) {
+                break;
+            }
         }
 
         // get the old values from the table; iterate through until bump into other variable or end of file
         Hashtable<String, Integer> oldValues = new Hashtable<String, Integer>();
-        while ((line = reader.readLine()) != null && line.split(":")[0] != "var") {
+        while ((line = reader.readLine()) != null && !line.split(":")[0].equals("var")) {
+            if (line.split(",").length > 1)
                 oldValues.put(line.split(",")[0], Integer.parseInt(line.split(",")[1]));
         }
 
         // merge old and new values directly into new file text
+        text += "var:" + variable + "\n";
         for (String key : additionValues.keySet()) {
             if (oldValues.containsKey(key)) {
-                text += key + "," + oldValues.get(key) + additionValues.get(key) + "\n";
-                // oldValues.put(key, oldValues.get(key) + additionValues.get(key));
+                oldValues.put(key, oldValues.get(key) + additionValues.get(key));
             } else {
-                text += key + "," + additionValues.get(key) + "\n";
-                // oldValues.put(key, additionValues.get(key));
+                oldValues.put(key, additionValues.get(key));
             }
         }
-
+        for (String key : oldValues.keySet()) {
+            text += key + "," + oldValues.get(key) + "\n";
+        }
         // add latest unprocessed line (iterator stopped here while getting old values) to the text
-        text += line;
+        if (line != null) text += line;
+
         while ((line = reader.readLine()) != null) {
             text += line;
         }
         reader.close();
-
         writeToFile(filePath, text, false);
+        return true;
     }
 
     public void cacheRegionalVariable(String regionType, String variable, Hashtable<String, Integer> regionalValues) {
         String regCachePath = this.workpath + "cache_regionalVariables";
         createFolder(regCachePath);
 
-        String filePath = regCachePath+ "/" + regionType + ".txt";
+        String filePath = regCachePath + "/" + regionType + ".txt";
 
-        Hashtable<String, Integer> pointers = getFileVarPointers(filePath);
-        if (pointers != null && pointers.containsKey(variable)) {
-            int variablePointer = pointers.get(variable);
+        boolean fileUpdated = false;
+
+        if (new File(filePath).exists()) {
             try {
-                updateVariable(regCachePath, variable, variablePointer, regionalValues);
+                fileUpdated = updateVariableInCache(filePath, variable, regionalValues);
             } catch (IOException e) {
                 throw new RuntimeException("Error occured while trying to modify data cache at '" + filePath + "'; Exception: " + e);
             }
-        } else {
+        }
+        if (fileUpdated == false) {
             String text = "var" + ":" + variable + "\n";
             for (Map.Entry<String, Integer> entry : regionalValues.entrySet()) {
                 text += entry.getKey() + "," + entry.getValue() + "\n";
@@ -141,7 +109,8 @@ public class TxtCacher {
                 }
                 varName = line.split(":")[1];
             } else {
-                values.put(line.split(",")[0], Integer.parseInt(line.split(",")[1]));
+                if (line.split(",").length > 1)
+                    values.put(line.split(",")[0], Integer.parseInt(line.split(",")[1]));
             }
         }
         varsByLocations.put(varName, values);
@@ -149,6 +118,21 @@ public class TxtCacher {
 
         return varsByLocations;
     }
+
+    public ArrayList<String> loadStringList(String filePath) throws IOException {
+
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
+        ArrayList<String> listStrings = new ArrayList<>();
+
+        String line;
+        while ((line = reader.readLine()) != null) {
+            listStrings.add(line);
+        }
+
+        reader.close();
+        return listStrings;
+    }
+
 
     public void writeToFile(String filePath, String text, boolean append) {
         String path = filePath;

@@ -12,15 +12,54 @@ import java.io.PrintWriter;
 import java.util.*;
 
 import static bigdata.DataLogic.AnalysisMode.*;
+import static bigdata.Main.cacher;
 
 public class Analyzer {
     // map plot constants
-    private static final int DEFAULT_GRID_SIZE = 6;
+    private static final int DEFAULT_GRID_SIZE = 32;
 
     // map plot vars
     private MapAggregation aggregationFormat;
+    private Grid grid;
     private Hashtable<String, Integer> mapDataState = new Hashtable<String, Integer>();
     private Hashtable<String, Integer> mapDataGrid = new Hashtable<String, Integer>();
+
+    class Grid {
+        private int gridSize;
+        private int height;
+        private int width;
+        private double startPoint;
+        private double realWidth;
+        private double realHeight;
+        private double boxSize;
+
+        public Grid(int gridSize, double[] topLeftEdge, double[] botRightEdge) {
+            this.gridSize = gridSize;
+            this.height = gridSize;
+            this.width = gridSize;
+
+            this.realWidth = Math.abs(topLeftEdge[0] - botRightEdge[0]);
+            this.realHeight = Math.abs(topLeftEdge[1] - botRightEdge[0]);
+
+            if (realWidth <= realHeight) {
+                this.boxSize = realHeight/ gridSize;
+            } else {
+                this.boxSize = realWidth  / gridSize;
+            }
+        }
+
+        public int getHeight() {
+            return height;
+        }
+
+        public int getWidth() {
+            return width;
+        }
+
+        public double getBoxSize() {
+            return boxSize;
+        }
+    }
 
     // general functionality
     private ArrayList<AnalysisMode> targetModes;
@@ -34,8 +73,42 @@ public class Analyzer {
     public Hashtable<String, Integer> getMapDataState() {
         return this.mapDataState;
     }
-    public Hashtable<String, Integer> getMapDataGrid() {
-        return this.mapDataGrid;
+    public String getMapDataGrid(String regionType, String variable) throws IOException {
+        Hashtable<String, Integer> cachedData = cacher.loadFromFile(
+                cacher.workpath + "cache_regionalVariables" + "/" + regionType + ".txt").get(variable);
+
+        ArrayList<double[]> centersCoords = new ArrayList<>();
+        ArrayList<Integer> regionValues = new ArrayList<>();
+        int minValue = 0;
+        int maxValue = 0;
+
+        for (int x = 0; x < grid.getWidth(); x++){
+            for (int y = 0; y < grid.getHeight(); y++){
+                // calculate centre of square coordinates
+                double[] coords = {grid.getBoxSize() * x - grid.getBoxSize() * 0.5,
+                                    grid.getBoxSize() * y - grid.getBoxSize() * 0.5};
+                centersCoords.add(coords);
+
+                // process regions magnitudes
+                int regionValue = cachedData.getOrDefault((Integer.toString(x) + ":" + Integer.toString(y)), 0);
+                if ((regionValue != 0 && minValue == 0) || (regionValue != 0 && regionValue < minValue)) {minValue = regionValue;}
+                if (regionValue > maxValue) {maxValue = regionValue;}
+                regionValues.add(regionValue);
+            }
+        }
+
+        String plotData = "";
+        int scale = maxValue / 100;
+
+        // get list of coordinates with higher magnitude points represented by multiple of repeated coordinates
+        for (int i = 0; i < centersCoords.size(); i++) {
+            int multiple = (int) Math.ceil(regionValues.get(i) / scale);
+            for (int j = 0; j < multiple; j++ ){
+                plotData += Double.toString(centersCoords.get(i)[0]) + "," + Double.toString(centersCoords.get(i)[1]) + "\n";
+            }
+        }
+
+        return plotData;
     }
 
     /* process list of data entries pre-filtered by parser into data structure
@@ -68,46 +141,32 @@ public class Analyzer {
         // variable for caching
         String variableName = "trauma"; // todo: merge filter parameters and pass to analyzer as a variable name
 
-        for (String key : regionValues.keySet()) {
-            System.out.println(key + " " + regionValues.get(key));
-        }
-        for (String key : this.mapDataState.keySet()) {
-            System.out.println(key + " " + this.mapDataState.get(key));
-        }
-
         // update instance values and cache them into txt file
-        if (this.mapDataState.isEmpty()) {
-            this.mapDataState = regionValues;
+        if (this.mapDataGrid.isEmpty()) {
+            this.mapDataGrid = regionValues;
         } else {
             // update the values of mapDataState with values from the new data chunk
-            for (String region : this.mapDataState.keySet()) {
-                int newCount = this.mapDataState.getOrDefault(region, 0) + regionValues.getOrDefault(region, 0);
-                this.mapDataState.put(region, newCount);
+            for (String region : regionValues.keySet()) {
+                int newCount = this.mapDataGrid.getOrDefault(region, 0) + regionValues.getOrDefault(region, 0);
+                this.mapDataGrid.put(region, newCount);
             }
-            Main.cacher.cacheRegionalVariable(regionType, variableName, mapDataState);
         }
+
+        System.out.println("Caching regional variable...");
+        cacher.cacheRegionalVariable(regionType, variableName, mapDataGrid);
     }
 
     private Hashtable<String, Integer> aggregateByGrid(ArrayList<Record> entries,
                                                        int gridSize, double[] topLeftEdge, double[] botRightEdge) {
         Hashtable<String, Integer> dataByGrid = new Hashtable<String, Integer>();
-
-        double width = Math.abs(topLeftEdge[0] - botRightEdge[0]);
-        double height = Math.abs(topLeftEdge[1] - botRightEdge[0]);
-
-        double boxSize;
-        if (height <= width) {
-            boxSize = height / gridSize;
-        } else {
-            boxSize = width / gridSize;
-        }
+        this.grid = new Grid(gridSize, topLeftEdge, botRightEdge);
 
         for (Record entry : entries) {
             try {
                 double[] coords = Main.coordinator.getCoordinates(entry.postCode);
 
-                int xBukket = (int) (Math.floor(Math.abs(coords[0] / boxSize))) + 1;
-                int yBukket = (int) (Math.floor(Math.abs(coords[1] / boxSize))) + 1;
+                int xBukket = (int) (Math.floor(Math.abs(coords[0] / grid.boxSize))) + 1;
+                int yBukket = (int) (Math.floor(Math.abs(coords[1] / grid.boxSize))) + 1;
 
                 String key = Integer.toString(xBukket) + ":" + Integer.toString(yBukket);
                 if (dataByGrid.get(key) == null) {
@@ -122,17 +181,6 @@ public class Analyzer {
             }
         }
 
-        //for (String box : dataByGrid.keySet()) {
-        //    System.out.print(box + ":" + dataByGrid.get(box) + ", ");
-        //}
-
-        /*for (int x = 0; x <= gridSize; x++) {
-            for (int y = 0; y <= gridSize; y++) {
-                String key = Integer.toString(x) + ":" + Integer.toString(y);
-                System.out.print(dataByGrid.getOrDefault(key, 0 ) + "\t");
-            }
-            System.out.println();
-        }*/
         return dataByGrid;
     }
 

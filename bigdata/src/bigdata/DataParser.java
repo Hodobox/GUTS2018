@@ -15,6 +15,8 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 
+import static bigdata.Main.cacher;
+
 public class DataParser {
 
     private Data restrictions;
@@ -40,8 +42,29 @@ public class DataParser {
 
         ArrayList<Record> result = new ArrayList<Record>();
         DRGChecker drgcheck = new DRGChecker();
+
+        // stopper
+        int j = 0;
+
+        ArrayList<String> cachedFiles = null;
+        try {
+            cachedFiles = cacher.loadStringList(cacher.workpath + cacher.CACHE_SOURCE_FILES_NAME);
+        } catch (IOException e) {
+            System.out.println("Failed to load read files cache. Exception: " + e);
+            cachedFiles = null;
+        }
+
         for (File file : directoryListing) {
-            String currentFile = file.getName();
+                        String currentFile = file.getName();
+
+            if (cachedFiles != null) {
+                System.out.println(cachedFiles.size());
+                if (cachedFiles.contains(currentFile)) {
+                    System.out.println("The current file has been cached, skipping...");
+                    continue;
+                }
+            }
+
             System.out.println("Reading file: " + currentFile);
 
             try {
@@ -131,24 +154,27 @@ public class DataParser {
                     result.add(record);
 
                     if (result.size() == 1024) {
+                        j++;
                         analyzer.processData(result);
                         result.clear();
                     }
                 }
-                reader.close();
-
-                // cache the file has been read
-                Main.cacher.cacheSourceFile(currentFile);
-            } catch (FileNotFoundException e) {
-                System.out.println("Error: not found file " + file.getName());
-                e.printStackTrace();
-            } catch (IOException e) {
-                System.out.println("Failed to read line in file " + file.getName());
-                e.printStackTrace();
-            }
+            reader.close();
+            //if (j > 50) {
+            //    break;
+            //}
+            // cache the file has been read
+            cacher.cacheSourceFile(currentFile);
+        } catch (FileNotFoundException e) {
+            System.out.println("Error: not found file " + file.getName());
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("Failed to read line in file " + file.getName());
+            e.printStackTrace();
         }
+    }
 
-        if (!result.isEmpty())
-            analyzer.processData(result);
+    if (!result.isEmpty())
+        analyzer.processData(result);
     }
 }

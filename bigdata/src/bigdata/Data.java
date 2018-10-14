@@ -153,8 +153,7 @@ public class Data {
 			}
 
 		}
-		
-		
+
 		System.out.println("Enter lower and upper price limit:");
 		this.priceLimitLow = readInt();
 		this.priceLimitHigh = readInt();
