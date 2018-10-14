@@ -29,7 +29,12 @@ public class DataParser {
 	// to the analyzer
 	public void parse(Analyzer analyzer)
 	{
-		File dir = new File("../data");
+        File dir;
+        try{
+            dir = new File("../data");
+        } catch (NullPointerException e) {
+            dir = new File("data");
+        };
 		File[] directoryListing = dir.listFiles();
 
 		ArrayList<Record> result = new ArrayList<Record>();

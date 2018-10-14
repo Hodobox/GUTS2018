@@ -1,6 +1,8 @@
 package bigdata.DataLogic;
 
+import bigdata.Main;
 import bigdata.Record;
+import bigdata.WorldMap.Coordinator;
 import bigdata.WorldMap.MapAggregation;
 import bigdata.WorldMap.WorldMapData;
 
@@ -13,7 +15,8 @@ public class Analyzer {
     private static final int DEFAULT_GRID_SIZE = 16;
 
     private MapAggregation aggregationFormat;
-    private Hashtable<String, Integer> mapData = new Hashtable<String, Integer>();
+    private Hashtable<String, Integer> mapDataState = new Hashtable<String, Integer>();
+    private Hashtable<String, Integer> mapDataGrid = new Hashtable<String, Integer>();
 
     private ArrayList<AnalysisMode> targetModes;
 
@@ -59,8 +62,8 @@ public class Analyzer {
     	this(MapAggregation.US_State);
     }
 
-    public Hashtable<String, Integer> getMapData() {
-        return this.mapData;
+    public Hashtable<String, Integer> getMapDataState() {
+        return this.mapDataState;
     }
 
     /* process list of data entries pre-filtered by parser into data structure
@@ -81,20 +84,22 @@ public class Analyzer {
                     regionValues = aggregateByState(entries, states);
                     break;
                 case Grid:
-                    regionValues = aggregateByGrid(entries, DEFAULT_GRID_SIZE);
+                    double[] topleft = {52.0, -133.0};
+                    double[] botrgiht = {20.0, -70.0};
+                    regionValues = aggregateByGrid(entries, DEFAULT_GRID_SIZE, topleft, botrgiht);
                     break;
                 default:
                     regionValues = new Hashtable<String, Integer>();
             }
 
-            if (this.mapData.isEmpty()) {
-                this.mapData = regionValues;
+            if (this.mapDataState.isEmpty()) {
+                this.mapDataState = regionValues;
             } else {
-                // update the values of mapData with values from the new data chunk
-                for (String region : this.mapData.keySet()) {
-                    //if (this.mapData.get(region) < regionValues.get(region)) {
-                    int currentCount = this.mapData.get(region);
-                	this.mapData.put(region, currentCount + regionValues.get(region));
+                // update the values of mapDataState with values from the new data chunk
+                for (String region : this.mapDataState.keySet()) {
+                    //if (this.mapDataState.get(region) < regionValues.get(region)) {
+                    int currentCount = this.mapDataState.get(region);
+                	this.mapDataState.put(region, currentCount + regionValues.get(region));
                     //}
                 }
             }
@@ -103,7 +108,6 @@ public class Analyzer {
     }
 
     private Hashtable<String, Integer> aggregateByState(ArrayList<Record> entries, String[] states) {
-    	
         Hashtable<String, Integer> dataByState = new Hashtable<String, Integer>();
 
         // calculate number of incidents of given data per state
@@ -111,15 +115,42 @@ public class Analyzer {
             dataByState.put(state, 0);
         }
         for (Record entry : entries) {
-            String state = WorldMapData.getStateByZip(entry.postCode);
-
-            dataByState.put(state, dataByState.get(state) + 1);
+            try {
+                String state = WorldMapData.getStateByZip(entry.postCode);
+                dataByState.put(state, dataByState.get(state) + 1);
+            } catch (Exception e) {
+                System.out.println("Exception caught while trying to update data for state: " + e.getMessage());
+                System.out.println("faulty line: " + entry);
+            }
         }
 
         return dataByState;
     }
 
-    private Hashtable<String, Integer>  aggregateByGrid(ArrayList<Record> entries, int gridSize) {
-        return new Hashtable<String, Integer>();
+    private Hashtable<String, Integer> aggregateByGrid(ArrayList<Record> entries,
+                                                       int gridSize, double[] topLeftEdge, double[] botRightEdge) {
+        Hashtable<String, Integer> dataByGrid = new Hashtable<String, Integer>();
+
+        Double width = Math.abs(topLeftEdge[0] - botRightEdge[0]);
+        Double height = Math.abs(topLeftEdge[1] - botRightEdge[0]);
+
+        if (height <= width) {
+            Double boxSize = height / gridSize;
+        } else {
+            Double boxSize = width / gridSize;
+        }
+
+        for (Record entry : entries) {
+            try {
+                Double[] coords = Main.coordinator.getCoordinates(entry.postCode);
+                Double xBukket = Math.abs(coords[0] - topLeftEdge[0]) / (width / gridSize);
+                Double yBukket = coords[1];
+            } catch (Exception e) {
+                System.out.println("Exception caught while trying to update data for state: " + e.getMessage());
+                System.out.println("faulty line: " + entry);
+            }
+        }
+
+        return dataByGrid;
     }
 }

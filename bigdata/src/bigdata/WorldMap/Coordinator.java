@@ -18,38 +18,41 @@ public class Coordinator {
 	public Coordinator()
 	{
 		knownCodes = new HashMap<String,Double[]>();
-		File file = new File("../US Zip Codes from 2013 Government Data");
-		
-		
-			BufferedReader reader;
-			try {
-				reader = new BufferedReader(new FileReader(file));
-				reader.readLine(); // read header
-				
-				String line;
-				
-				while( (line = reader.readLine()) != null)
-				{
-					String[] parsedLine = line.split(",");
-					Double x = Double.parseDouble(parsedLine[1]);
-					Double y = Double.parseDouble(parsedLine[2]);
-					
-					System.out.println(Arrays.asList(parsedLine).toString());
-					
-					knownCodes.put(parsedLine[0], new Double[] {x,y});
-					
-				}
-			} catch (FileNotFoundException e) {
-				System.out.println("Not found ZIP codes file");
-				e.printStackTrace();
-				return;
-			} catch (IOException e) {
-				System.out.println("Failed to read ZIP codes file");
-				e.printStackTrace();
-				return;
-			}
-			
-		
+
+        File file;
+        try{
+            file = new File("../US Zip Codes from 2013 Government Data");
+        } catch (NullPointerException e) {
+            file = new File("US Zip Codes from 2013 Government Data");
+        }
+
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new FileReader(file));
+            reader.readLine(); // read header
+
+            String line;
+
+            while( (line = reader.readLine()) != null)
+            {
+                String[] parsedLine = line.split(",");
+                Double x = Double.parseDouble(parsedLine[1]);
+                Double y = Double.parseDouble(parsedLine[2]);
+
+                System.out.println(Arrays.asList(parsedLine).toString());
+
+                knownCodes.put(parsedLine[0], new Double[] {x,y});
+
+            }
+        } catch (FileNotFoundException e) {
+            System.out.println("Not found ZIP codes file");
+            e.printStackTrace();
+            return;
+        } catch (IOException e) {
+            System.out.println("Failed to read ZIP codes file");
+            e.printStackTrace();
+            return;
+        }
 	}
 	/*given zip code string, returns Double[2] with the resulting coordinates*/
 	public Double[] getCoordinates(String zipCode)

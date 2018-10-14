@@ -1,11 +1,12 @@
 package bigdata;
 
+import bigdata.WorldMap.WorldMapData;
+
 public class Record {
     public String postCode;
 
     public Record(String line)
 	{
-
         String[] columns = line.split(",");
 
         if(columns.length < 15)
@@ -15,6 +16,10 @@ public class Record {
         final String birthDate = columns[4];
         final String admissionDate = columns[6];
         String postcodeStr = columns[14];
+
+        if (WorldMapData.getStateByZip(postcodeStr) == null) {
+            System.out.println("State lookup returned null for line: " + line);
+        }
         
         if(postcodeStr.length() > 5)
 		{
@@ -26,4 +31,5 @@ public class Record {
         final String DRGcode = columns[17];
 		// parse the input line and extract whatever information analyzer needs
 	}
+
 }

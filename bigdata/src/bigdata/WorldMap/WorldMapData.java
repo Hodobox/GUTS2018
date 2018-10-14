@@ -12,8 +12,14 @@ public class WorldMapData {
 
     public static String getStateByZip(String zip)
     {
-        int zipValue = Integer.parseInt(zip);
-        
+        int zipValue = 0;
+        try {
+            zipValue = Integer.parseInt(zip);
+        }catch(NumberFormatException e) {
+            System.out.println("Zip code is not a valid integer, exception thrown: " + e.getMessage());
+            return null;
+        }
+
         for (String stateCode : stateZipRange.keySet())
         {	
         	ArrayList<Point> ranges = stateZipRange.get(stateCode);
@@ -30,7 +36,7 @@ public class WorldMapData {
     public static void processStateZipRanges() {
     	System.out.println("constructing the fking map");
     	stateZipRange = new HashMap<String,ArrayList<Point>>();
-        File file = new File("../states.txt");
+        File file = new File("states.txt");
         BufferedReader reader = null;
         try {
             reader = new BufferedReader(new FileReader(file));
