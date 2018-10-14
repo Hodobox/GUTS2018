@@ -1,8 +1,12 @@
 package bigdata;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.InputMismatchException;
+import java.util.Scanner;
 
 public class Data {
 
@@ -86,21 +90,83 @@ public class Data {
 	private DRG DRGInformation;
 	Date dateLimitLow, dateLimitHigh;
 
+	private int readInt()
+	{
+		Scanner sc = new Scanner(System.in);
+		Integer x = null;
+
+		try 
+		{
+			x = sc.nextInt();
+		} catch(InputMismatchException e)
+		{
+			System.out.println("Please enter an integer.");			
+			return readInt();
+		}
+	
+		return x;
+	}
+	
 	public Data()
 	{
-		this.ageLimitLow = 20;
-		this.ageLimitHigh = 25;
-		this.includeFemales = true;
-		this.includeMales = false;
-		try {
-			this.dateLimitLow = new SimpleDateFormat("MM/dd/yyyy").parse("1/1/2013");
-			this.dateLimitHigh = new SimpleDateFormat("MM/dd/yyyy").parse("1/1/2018");
-		} catch (ParseException e) {
-			System.out.println("fuck you date");
-			e.printStackTrace();
+		System.out.println("Enter restrictions on considered data, one token per line.");
+		System.out.println("Enter lower and upper age limit:");
+		this.ageLimitLow = readInt();
+		this.ageLimitHigh = readInt();
+		
+		if(this.ageLimitLow > this.ageLimitHigh)
+		{
+			System.out.println("Swapping limits due to inversion");
+			int tmp = this.ageLimitLow;
+			this.ageLimitLow = this.ageLimitHigh;
+			this.ageLimitHigh = tmp;
 		}
-		this.priceLimitLow = 0;
-		this.priceLimitHigh = 123456;
+		
+		System.out.println("Include genders: Female = 1, Male = 2, Female & Male = 3:");
+		
+		int genderVal = readInt();
+		
+		if(genderVal<=0 || genderVal>3)
+		{
+			System.out.println("Invalid gender inclusion, including both Male & Female");
+			genderVal = 3;
+		}
+		 
+		this.includeFemales = ( (genderVal & 1) > 0) ? true : false;
+		this.includeMales = ( (genderVal & 2) > 0) ? true : false;
+		
+		try {
+			System.out.println("Enter earliest and latest admission date, format = Month/Day/Year (invalid implies no limit):");
+			Scanner sc = new Scanner(System.in);
+			String low = sc.next();
+			String high = sc.next();
+			this.dateLimitLow = new SimpleDateFormat("MM/dd/yyyy").parse(low);
+			this.dateLimitHigh = new SimpleDateFormat("MM/dd/yyyy").parse(high);
+		} catch (ParseException e) {
+			System.out.println("failed parsing dates, putting no restriction on admission date");
+			try {
+				this.dateLimitLow = new SimpleDateFormat("MM/dd/yyyy").parse("1/1/1900");
+				this.dateLimitHigh = new SimpleDateFormat("MM/dd/yyyy").parse("1/1/2100");
+			} catch (ParseException e1) {
+				System.out.println("Failed parsing default date...");
+				e1.printStackTrace();
+			}
+
+		}
+		
+		
+		System.out.println("Enter lower and upper price limit:");
+		this.priceLimitLow = readInt();
+		this.priceLimitHigh = readInt();
+		
+		if(this.priceLimitLow > this.priceLimitHigh)
+		{
+			System.out.println("Swapping limits due to inversion");
+			int tmp = this.priceLimitLow;
+			this.priceLimitLow = this.priceLimitHigh;
+			this.priceLimitHigh = tmp;
+		}
+		
 		
 	}
 }
