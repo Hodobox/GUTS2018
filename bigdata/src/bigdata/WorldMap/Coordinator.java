@@ -1,6 +1,7 @@
 package bigdata.WorldMap;
 
 import java.awt.Point;
+import java.nio.file.FileSystemException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.io.BufferedReader;
@@ -19,16 +20,17 @@ public class Coordinator {
 	{
 		knownCodes = new HashMap<String,Double[]>();
 
-        File file;
-        try{
-            file = new File("../US Zip Codes from 2013 Government Data");
-        } catch (NullPointerException e) {
-            file = new File("US Zip Codes from 2013 Government Data");
-        }
-
-        BufferedReader reader;
         try {
-            reader = new BufferedReader(new FileReader(file));
+            File file;
+            BufferedReader reader;
+
+            try {
+                file = new File("../US Zip Codes from 2013 Government Data");
+                reader = new BufferedReader(new FileReader(file));
+            } catch (FileNotFoundException e) {
+                file = new File("US Zip Codes from 2013 Government Data");
+                reader = new BufferedReader(new FileReader(file));
+            }
             reader.readLine(); // read header
 
             String line;
@@ -39,7 +41,7 @@ public class Coordinator {
                 Double x = Double.parseDouble(parsedLine[1]);
                 Double y = Double.parseDouble(parsedLine[2]);
 
-                System.out.println(Arrays.asList(parsedLine).toString());
+                //System.out.println(Arrays.asList(parsedLine).toString());
 
                 knownCodes.put(parsedLine[0], new Double[] {x,y});
 
@@ -55,16 +57,16 @@ public class Coordinator {
         }
 	}
 	/*given zip code string, returns Double[2] with the resulting coordinates*/
-	public Double[] getCoordinates(String zipCode)
+	public double[] getCoordinates(String zipCode)
 	{
 		if(knownCodes.containsKey(zipCode))
 		{
-			Double[] result = new Double[] { knownCodes.get(zipCode)[0], knownCodes.get(zipCode)[1]};
+            double[] result = new double[] { knownCodes.get(zipCode)[0], knownCodes.get(zipCode)[1]};
 			return result;
 		}
 		
 		System.out.println("Not found zipCode: " + zipCode);
-		return new Double[] {0.0,0.0};
+		return new double[] {0.0,0.0};
 	}
 
 }

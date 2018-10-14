@@ -10,11 +10,14 @@ public class WorldMapData {
 
     private static HashMap<String,ArrayList<Point>> stateZipRange;
 
-    public static String getStateByZip(String zip)
-    {
+    public static String getStateByZip(String zipString) {
         int zipValue = 0;
+        if (zipString.length() > 5) {
+            zipString = zipString.substring(0, 5);
+        }
+
         try {
-            zipValue = Integer.parseInt(zip);
+            zipValue = Integer.parseInt(zipString);
         }catch(NumberFormatException e) {
             System.out.println("Zip code is not a valid integer, exception thrown: " + e.getMessage());
             return null;
@@ -29,8 +32,9 @@ public class WorldMapData {
         			return stateCode;
         		}
         }
-        System.out.println(zipValue);
-        throw new RuntimeException("state not found");
+        System.out.println("Zip code not found:" + zipValue);
+        // throw new RuntimeException("state not found");
+        return null;
     }
 
     public static void processStateZipRanges() {
